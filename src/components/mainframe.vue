@@ -3,15 +3,15 @@
   <el-header>
     <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
       <img src="../assets/ZYPC.png" style="width:280px;float:left;outline:none">
-      <el-menu-item index="1" class="nav" @click="skip('home')"><strong>首页</strong></el-menu-item>
-      <el-menu-item index="2" class="nav" @click="skip('edit')"><strong>写周报</strong></el-menu-item>
-      <el-menu-item index="3" class="nav" @click="skip('draft')"><strong>草稿箱</strong></el-menu-item>
-      <el-menu-item index="4" class="nav" @click="skip('collection')"><strong>我的收藏</strong></el-menu-item>
-      <el-menu-item index="5" class="nav" @click="skip('upload')"><strong>已上传</strong></el-menu-item>
-      <el-menu-item index="6" class="nav" @click="skip('infor')"><img src="../assets/message.png" style="width:25px;height:25px;margin-left:110px"></el-menu-item>     <img src="../assets/touxiang.jpg" style="width:55px;height:55px;margin-left:39px">
+      <el-menu-item index="1" class="nav" @click="skip('home')" style="margin:0 10px 0px 80px;"><strong>首页</strong></el-menu-item>
+      <el-menu-item index="2" class="nav" @click="skip('edit')" style="margin:0 10px 0px 80px;"><strong>写周报</strong></el-menu-item>
+      <el-menu-item index="3" class="nav" @click="skip('draft')" style="margin:0 10px 0px 80px;"><strong>草稿箱</strong></el-menu-item>
+      <el-menu-item index="4" class="nav" @click="skip('collection')" style="margin:0 10px 0px 80px;"><strong>我的收藏</strong></el-menu-item>
+      <el-menu-item index="5" class="nav" @click="skip('upload')" style="margin:0 10px 0px 80px;"><strong>已上传</strong></el-menu-item>
+      <img :src="img" style="width:55px;height:55px;margin-left:39px;float:right;">
     </el-menu>
   </el-header>
-  <el-container>
+  <el-container class="content">
     <el-aside style="width:280px; border-right:none;">
       <el-row class="tac">
         <el-col :span="24">
@@ -20,29 +20,19 @@
             class="el-menu-vertical-demo"
             @open="handleOpen"
             @close="handleClose"
-            unique-opened="true">
-            <el-submenu index="1">
-              <template slot="title">
-                <span><strong>运维组</strong></span>
+            :unique-opened="true">
+            <el-submenu  v-for="(da,num) in datas" :key="num" :index="num.toString()">
+              <template slot="title" style="padding :0 35px;">
+                <span><strong>{{da.category}}</strong></span>
               </template>
-                <el-menu-item index="1-1">嘻嘻嘻</el-menu-item>
-                <el-menu-item index="1-2">嘻嘻嘻</el-menu-item>
-                <el-menu-item index="1-3">嘻嘻嘻</el-menu-item>
-            </el-submenu>
-            <el-submenu index="2">
-              <template slot="title">
-                <span><strong>开发组</strong></span>
-              </template>
-                <el-menu-item index="2-1">嘻嘻嘻</el-menu-item>
-                <el-menu-item index="2-2">嘻嘻嘻</el-menu-item>
-                <el-menu-item index="2-3">嘻嘻嘻</el-menu-item>
+                <el-menu-item id="itenn" class="nam" @click.native="sideother(d.id)" v-for="d in da.list" :key="d.id" :index="d.id">{{d.name}}</el-menu-item>
             </el-submenu>
           </el-menu>
         </el-col>
       </el-row>
     </el-aside>
     <el-main router>
-      <router-view></router-view>
+      <router-view :number="xuehao" :cate="category" :childms="childmsg" :coll="collect"  v-on:showarti="read" v-on:showup="heupload"></router-view>
     </el-main>
   </el-container>
 </el-container>
@@ -54,7 +44,15 @@ export default {
   data () {
     return {
       activeIndex: '1',
-      activeIndex2: '1'
+      activeIndex2: '1',
+      datas: '',
+      name:'',    //名字
+      xuehao:'04161111',
+      category:'',
+      img:'',
+      childmsg:{'id':'','text':'','uid':''},
+      collect:'',
+      asidemenu:true, 
     }
   },
   methods: {
@@ -69,7 +67,36 @@ export default {
     },
     skip (a) {
       this.$router.push(a)
+    },
+    read(id,text,userid){
+          this.childmsg={'id':id,'text':text,'uid':userid};
+      },
+    heupload(id){
+      this.childmsg.uid=id
+    },
+    sideother(xue){
+      this.childmsg.uid = xue
+      this.$router.push('otherupload')
     }
+  },
+  mounted () {
+    let _this = this
+    _this.$http({
+      method: 'post',
+      url: '/weekly/user/login.action',
+      pamras: {
+      }
+    })
+      .then(function (res) {
+        _this.datas = res.data.data;
+        _this.img=res.data.user.headImage;
+        _this.xuehao=res.data.user.id;
+        _this.category=res.data.user.category;
+        _this.name=res.data.user.name;
+      })
+      .catch(function (err) {
+        console.log(err)
+      })
   }
 }
 </script>
@@ -80,11 +107,9 @@ export default {
   margin:0;
   height:100%;
 }
-.el-side{
-  overflow:auto;
-}
 .el-header{
   font-size:16px;
+  padding:0;
 }
 .nav{
   font-size:16px;
@@ -93,18 +118,34 @@ export default {
   font-size: 13px;
 }
 span{
-  margin-left:30px;
+  margin:0;
   font-size: 15px;
-}
-.el-menu-item{
-  margin-left:80px;
-  margin-right:10px;
+  padding:0 60px;
 }
 .el-aside {
   text-align: center;
   margin-top:1px;
+  overflow: auto;
 }
 .el-main {
   margin:0px;
+  overflow:auto;
+}
+.nam{
+  text-align: center;
+}
+#itenn{
+  margin: 0;
+}
+</style>
+<style>
+.el-submenu__title{
+  text-align: left;
+  padding-left: 35px;
+}
+body{
+  margin:0;
+  padding:0;
+  height:100vh;
 }
 </style>

@@ -6,6 +6,8 @@ import edit from '@/components/edit'
 import draft from '@/components/draft'
 import collection from '@/components/collection'
 import upload from '@/components/upload'
+import showCon from '@/components/showCon'
+import otherupload from '@/components/otherupload'
 Vue.use(Router)
 
 export default new Router({
@@ -19,7 +21,9 @@ export default new Router({
         { name: 'edit', path: '/edit', component: edit },
         { name: 'draft', path: '/draft', component: draft },
         { name: 'collection', path: '/collection', component: collection },
-        { name: 'upload', path: '/upload', component: upload }
+        { name: 'upload', path: '/upload', component: upload },
+        { name: 'showCon', path: '/showCon', component: showCon },
+        { name: 'otherupload', path: '/otherupload', component: otherupload }
       ]
     }
     // { path: '*', component : notFound }
